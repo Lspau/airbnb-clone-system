@@ -47,6 +47,14 @@ const verifyEmail = catchAsync(async (req, res) => {
   res.status(httpStatus.NO_CONTENT).send();
 });
 
+const loginGithubSuccess = async (req, res) => {
+  res.status(200).send('Login with github successfully!');
+};
+
+const loginGithubFailure = async (req, res) => {
+  res.status(400).send('Login with github failure!');
+};
+
 module.exports = {
   register,
   login,
@@ -56,4 +64,6 @@ module.exports = {
   resetPassword,
   sendVerificationEmail,
   verifyEmail,
+  loginGithubSuccess,
+  loginGithubFailure,
 };

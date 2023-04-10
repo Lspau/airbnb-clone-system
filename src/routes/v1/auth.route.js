@@ -1,4 +1,5 @@
 const express = require('express');
+const passport = require('passport');
 const validate = require('../../middlewares/validate');
 const authValidation = require('../../validations/auth.validation');
 const authController = require('../../controllers/auth.controller');
@@ -14,6 +15,22 @@ router.post('/forgot-password', validate(authValidation.forgotPassword), authCon
 router.post('/reset-password', validate(authValidation.resetPassword), authController.resetPassword);
 router.post('/send-verification-email', auth(), authController.sendVerificationEmail);
 router.post('/verify-email', validate(authValidation.verifyEmail), authController.verifyEmail);
+router.get('/github', passport.authenticate('github', { scope: ['user:email'] }));
+router.get(
+  '/github/callback',
+  passport.authenticate('github', {
+    failureRedirect: '/v1/auth/github/failure',
+    successRedirect: '/v1/auth/github/success',
+    session: false,
+  })
+);
+router.get('/github/success', authController.loginGithubSuccess);
+router.get('/github/failure', authController.loginGithubFailure);
+/*
+error=redirect_uri_mismatch
+error_description=The+redirect_uri+MUST+match+the+registered+callback+URL+for+this+application.
+error_uri=https%3A%2F%2Fdocs.github.com%2Fapps%2Fmanaging-oauth-apps%2Ftroubleshooting-authorization-request-errors%2F%23redirect-uri-mismatch
+*/
 
 module.exports = router;
 

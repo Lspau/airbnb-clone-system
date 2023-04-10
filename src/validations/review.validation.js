@@ -1,6 +1,5 @@
 const Joi = require('joi');
 const { objectId } = require('./custom.validation');
-const { Review } = require('../models');
 
 const getReviews = {
   query: Joi.object().keys({
@@ -28,9 +27,7 @@ const createReview = {
 
 const deleteReview = {
   params: Joi.object().keys({
-    reviewId: Joi.string().custom(objectId).custom((value, helper) => {
-    onst
-    }),
+    reviewId: Joi.string().custom(objectId),
   }),
 };
 

@@ -4,6 +4,11 @@ const ApiError = require('../utils/ApiError');
 const catchAsync = require('../utils/catchAsync');
 const { reviewService } = require('../services');
 
+const createReview = catchAsync(async (req, res) => {
+  const review = await reviewService.createReview(req.body);
+  res.status(httpStatus.CREATED).send(review);
+});
+
 const getReviews = catchAsync(async (req, res) => {
   const filter = pick(req.query, ['rating']);
   const options = pick(req.query, ['sortBy', 'limit', 'page']);
@@ -17,11 +22,6 @@ const getReview = catchAsync(async (req, res) => {
     throw new ApiError(httpStatus.NOT_FOUND, 'Review not found');
   }
   res.send(review);
-});
-
-const createReview = catchAsync(async (req, res) => {
-  const review = await reviewService.createReview(req.body);
-  res.status(httpStatus.CREATED).send(review);
 });
 
 const deleteReview = catchAsync(async (req, res) => {

@@ -28,17 +28,24 @@ const userSchema = mongoose.Schema(
       required: true,
       trim: true,
       minlength: 8,
-      validate(value) {
-        if (!value.match(/\d/) || !value.match(/[a-zA-Z]/)) {
-          throw new Error('Password must contain at least one letter and one number');
-        }
-      },
-      private: true, // used by the toJSON plugin
+      private: true,
     },
     role: {
       type: String,
       enum: roles,
       default: 'user',
+    },
+    githubId: {
+      type: String,
+      default: '',
+    },
+    googleId: {
+      type: String,
+      default: '',
+    },
+    facebookId: {
+      type: String,
+      default: '',
     },
     isEmailVerified: {
       type: Boolean,

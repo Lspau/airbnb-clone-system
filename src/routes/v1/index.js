@@ -31,8 +31,12 @@ const devRoutes = [
 ];
 
 defaultRoutes.forEach((route) => {
+  // eslint-disable-next-line no-console
+  console.log(`http://localhost:3000/v1/${route.path}`);
   router.use(route.path, route.route);
 });
+// eslint-disable-next-line no-console
+console.log('http://localhost:3000/v1/auth/github');
 
 /* istanbul ignore next */
 if (config.env === 'development') {
