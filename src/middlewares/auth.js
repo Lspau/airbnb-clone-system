@@ -2,6 +2,8 @@ const passport = require('passport');
 const httpStatus = require('http-status');
 const ApiError = require('../utils/ApiError');
 const { roleRights } = require('../config/roles');
+const { User } = require('../models/index');
+const jwt = require('jsonwebtoken');
 
 const verifyCallback = (req, resolve, reject, requiredRights) => async (err, user, info) => {
   if (err || info || !user) {
@@ -30,4 +32,6 @@ const auth =
       .catch((err) => next(err));
   };
 
-module.exports = auth;
+module.exports = {
+  auth,
+};

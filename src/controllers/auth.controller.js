@@ -47,6 +47,29 @@ const verifyEmail = catchAsync(async (req, res) => {
   res.status(httpStatus.NO_CONTENT).send();
 });
 
+const logInWithGoogle = catchAsync(async (req, res) => {
+  console.log(`auth user`, req.user);
+  const token = await tokenService.generateAuthTokens(req.user);
+  console.log(`token`, token);
+  res.setHeader('Authorization', token.access.token);
+  return res.status(httpStatus.NO_CONTENT).send();
+});
+const logInWithFacebook = catchAsync(async (req, res) => {
+  // console.log(`auth user`, req.user);
+  const token = await tokenService.generateAuthTokens(req.user);
+  console.log(`token`, token);
+  res.setHeader('Authorization', token.access.token);
+  return res.status(httpStatus.NO_CONTENT).send();
+});
+
+const logInWithGithub = catchAsync(async (req, res) => {
+  console.log(`auth user`, req.user);
+  const token = await tokenService.generateAuthTokens(req.user);
+  console.log(`token`, token);
+  res.setHeader('Authorization', token.access.token);
+  return res.status(httpStatus.NO_CONTENT).send();
+});
+
 module.exports = {
   register,
   login,
@@ -56,4 +79,7 @@ module.exports = {
   resetPassword,
   sendVerificationEmail,
   verifyEmail,
+  logInWithGoogle,
+  logInWithFacebook,
+  logInWithGithub,
 };

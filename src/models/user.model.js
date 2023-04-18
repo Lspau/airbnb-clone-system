@@ -6,6 +6,10 @@ const { roles } = require('../config/roles');
 
 const userSchema = mongoose.Schema(
   {
+    provider: {
+      type: String,
+      defaut: null,
+    },
     name: {
       type: String,
       required: true,
@@ -25,7 +29,7 @@ const userSchema = mongoose.Schema(
     },
     password: {
       type: String,
-      required: true,
+      // required: true,
       trim: true,
       minlength: 8,
       validate(value) {
@@ -43,6 +47,27 @@ const userSchema = mongoose.Schema(
     isEmailVerified: {
       type: Boolean,
       default: false,
+    },
+
+    authType: {
+      type: String,
+      enum: ['local', 'google', 'facebook', 'github'],
+      default: 'local',
+    },
+    // google
+    googleId: {
+      type: String,
+      default: null,
+    },
+    // fb
+    facebookId: {
+      type: String,
+      default: null,
+    },
+    //github
+    githubId: {
+      type: String,
+      default: null,
     },
   },
   {
@@ -76,11 +101,15 @@ userSchema.methods.isPasswordMatch = async function (password) {
 };
 
 userSchema.pre('save', async function (next) {
-  const user = this;
-  if (user.isModified('password')) {
-    user.password = await bcrypt.hash(user.password, 8);
-  }
-  next();
+  try {
+    if (this.authType !== 'local') next();
+    const user = this;
+    if (user.isModified('password')) {
+      user.password = await bcrypt.hash(user.password, 8);
+    }
+    next();
+  } catch (error) {}
+  next(error);
 });
 
 /**
