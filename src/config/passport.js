@@ -10,11 +10,13 @@ const passport = require('passport');
 //passport-jwt
 const jwtOptions = {
   secretOrKey: config.jwt.secret,
-  jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+  jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken('Authorization'),
+  // jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
 };
 
 const jwtVerify = async (payload, done) => {
   try {
+    console.log(payload);
     if (payload.type !== tokenTypes.ACCESS) {
       throw new Error('Invalid token type');
     }

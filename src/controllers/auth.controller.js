@@ -2,6 +2,14 @@ const httpStatus = require('http-status');
 const catchAsync = require('../utils/catchAsync');
 const { authService, userService, tokenService, emailService } = require('../services');
 
+//test
+const secret = catchAsync(async (req, res) => {
+  //console.log(`req.user`, req.user);
+  // const user = await userService.createUser(req.body);
+  // const tokens = await tokenService.generateAuthTokens(user);
+  // res.status(httpStatus.CREATED).send({ user, tokens });
+});
+
 const register = catchAsync(async (req, res) => {
   const user = await userService.createUser(req.body);
   const tokens = await tokenService.generateAuthTokens(user);
@@ -12,6 +20,7 @@ const login = catchAsync(async (req, res) => {
   const { email, password } = req.body;
   const user = await authService.loginUserWithEmailAndPassword(email, password);
   const tokens = await tokenService.generateAuthTokens(user);
+  //res.setHeader('Authorization', tokens.access.token);
   res.send({ user, tokens });
 });
 
@@ -37,6 +46,7 @@ const resetPassword = catchAsync(async (req, res) => {
 });
 
 const sendVerificationEmail = catchAsync(async (req, res) => {
+  console.log(req.user);
   const verifyEmailToken = await tokenService.generateVerifyEmailToken(req.user);
   await emailService.sendVerificationEmail(req.user.email, verifyEmailToken);
   res.status(httpStatus.NO_CONTENT).send();
@@ -71,6 +81,7 @@ const logInWithGithub = catchAsync(async (req, res) => {
 });
 
 module.exports = {
+  secret,
   register,
   login,
   logout,

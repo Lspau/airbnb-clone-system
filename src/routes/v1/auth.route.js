@@ -16,6 +16,11 @@ router.post('/reset-password', validate(authValidation.resetPassword), authContr
 router.post('/send-verification-email', auth(), authController.sendVerificationEmail);
 router.post('/verify-email', validate(authValidation.verifyEmail), authController.verifyEmail);
 
+//test route
+
+router.post('/secret', passport.authenticate('jwt', { session: false }), authController.secret);
+router.post('/secret');
+
 // Route for third-party authentication
 
 router.post('/google', passport.authenticate('google-plus-token', { session: false }), authController.logInWithGoogle);
@@ -263,6 +268,14 @@ module.exports = router;
  *     tags: [Auth]
  *     security:
  *       - bearerAuth: []
+ *
+ *  or:
+ *       Headers:
+ *
+ *         name: Authorization
+ *         required: true
+ *        example: 'Bearer token
+ *
  *     responses:
  *       "204":
  *         description: No content
