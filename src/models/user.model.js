@@ -6,10 +6,6 @@ const { roles } = require('../config/roles');
 
 const userSchema = mongoose.Schema(
   {
-    provider: {
-      type: String,
-      defaut: null,
-    },
     name: {
       type: String,
       required: true,
@@ -29,7 +25,7 @@ const userSchema = mongoose.Schema(
     },
     password: {
       type: String,
-      // required: true,
+      required: true,
       trim: true,
       minlength: 8,
       validate(value) {
@@ -51,7 +47,7 @@ const userSchema = mongoose.Schema(
 
     authType: {
       type: String,
-      enum: ['local', 'google', 'facebook', 'github'],
+      enum: ['local', 'facebook', 'google', 'github'],
       default: 'local',
     },
     // google

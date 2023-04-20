@@ -20,7 +20,7 @@ const login = catchAsync(async (req, res) => {
   const { email, password } = req.body;
   const user = await authService.loginUserWithEmailAndPassword(email, password);
   const tokens = await tokenService.generateAuthTokens(user);
-  //res.setHeader('Authorization', tokens.access.token);
+  res.setHeader('Authorization', tokens.access.token);
   res.send({ user, tokens });
 });
 
@@ -59,25 +59,28 @@ const verifyEmail = catchAsync(async (req, res) => {
 
 const logInWithGoogle = catchAsync(async (req, res) => {
   console.log(`auth user`, req.user);
+  const user = req.user;
   const token = await tokenService.generateAuthTokens(req.user);
   console.log(`token`, token);
   res.setHeader('Authorization', token.access.token);
-  return res.status(httpStatus.NO_CONTENT).send();
+  return res.status(httpStatus.CREATED).send({ user, token });
 });
 const logInWithFacebook = catchAsync(async (req, res) => {
   // console.log(`auth user`, req.user);
+  const user = req.user;
   const token = await tokenService.generateAuthTokens(req.user);
   console.log(`token`, token);
   res.setHeader('Authorization', token.access.token);
-  return res.status(httpStatus.NO_CONTENT).send();
+  return res.status(httpStatus.CREATED).send({ user, token });
 });
 
 const logInWithGithub = catchAsync(async (req, res) => {
   console.log(`auth user`, req.user);
+  const user = req.user;
   const token = await tokenService.generateAuthTokens(req.user);
   console.log(`token`, token);
   res.setHeader('Authorization', token.access.token);
-  return res.status(httpStatus.NO_CONTENT).send();
+  return res.status(httpStatus.CREATED).send({ user, token });
 });
 
 module.exports = {

@@ -6,6 +6,8 @@ const config = require('./config');
 const { tokenTypes } = require('./tokens');
 const { User } = require('../models');
 const passport = require('passport');
+const ApiError = require('../utils/ApiError');
+const httpStatus = require('http-status');
 
 //passport-jwt
 const jwtOptions = {
@@ -113,25 +115,67 @@ passport.use(
       clientSecret: config.github.clientSecret,
     },
     async (accessToken, refreshToken, profile, done) => {
-      console.log({ accessToken, refreshToken, profile });
+      console.log({ accessToken, refreshToken, profile, done });
       try {
-        const oldUser = await User.findOne({ githubId: profile.id, authType: 'github' });
-        if (oldUser) return done(null, oldUser);
-        //create a new user
+        // Check if user has a valid email address
+        if (!profile._json.email) {
+          // If email is null, prompt user to provide an email address
+          //throw new ApiError(httpStatus.UNAUTHORIZED, 'Please provide an email address to continue.');
+          return done(null, false, { message: 'Please provide an email address to continue.' });
+        }
+        User.findOne({ githubId: profile.id }, async (err, user) => {
+          if (err) return done(err);
 
-        const newUser = await new User({
-          provider: profile.provider,
-          githubId: profile.id,
-          email: profile.emails[0].value,
-          name: profile.displayName,
-          authType: 'github',
+          if (user) {
+            return done(null, user);
+          } else {
+            User.findOne({ email: profile.emails[0].value }, async (err, user) => {
+              if (err) return done(err);
+
+              if (user) {
+                user.githubId = profile.id;
+                user.authType = profile.provider;
+                // Save updated user to database
+                user.save((err) => {
+                  if (err) {
+                    return done(err);
+                  }
+                  return done(null, user);
+                });
+                // return done(null, false, { message: 'This email is already associated with a different account.' });
+              } else {
+                const newUser = new User();
+                newUser.githubId = profile.id;
+                newUser.name = profile.displayName;
+                newUser.email = profile.emails[0].value;
+                newUser.save((err) => {
+                  if (err) {
+                    return done(err);
+                  }
+                  return done(null, newUser);
+                });
+              }
+            });
+          }
         });
 
-        console.log({ newUser: newUser });
+        // const oldUser = await User.findOne({ githubId: profile.id, authType: 'github' });
+        // if (oldUser) return done(null, oldUser);
+        // //create a new user
 
-        await newUser.save();
+        // const newUser = await new User({
+        //   provider: profile.provider,
+        //   githubId: profile.id,
+        //   email: profile.emails[0].value,
+        //   name: profile.displayName,
+        //   authType: 'github',
+        // });
 
-        done(null, newUser);
+        // console.log({ newUser: newUser });
+
+        // await newUser.save();
+
+        // done(null, newUser);
       } catch (error) {
         done(error, false);
       }
