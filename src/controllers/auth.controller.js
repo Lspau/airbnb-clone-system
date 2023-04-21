@@ -61,15 +61,6 @@ const verifyEmail = catchAsync(async (req, res) => {
 //user
 
 const logInWithGoogle = catchAsync(async (req, res) => {
-  // console.log(`auth user`, req.user);
-  // const user = req.user;
-  // user.role = 'user';
-  // await user.save();
-  // const token = await tokenService.generateAuthTokens(req.user);
-  // console.log(`token`, token);
-  // res.setHeader('Authorization', token.access.token);
-  // return res.status(httpStatus.CREATED).send({ user, token });
-
   const user = authenticateUserWithSocialProvider('google', req.user, 'user', async (err, user) => {
     if (err) {
       return res.status(400).json({ message: err.message });
@@ -83,13 +74,6 @@ const logInWithGoogle = catchAsync(async (req, res) => {
 });
 const logInWithFacebook = catchAsync(async (req, res) => {
   console.log(`auth user`, req.user);
-  // const user = req.user;
-  // user.role = 'user';
-  // await user.save();
-  // const token = await tokenService.generateAuthTokens(req.user);
-  // console.log(`token`, token);
-  // res.setHeader('Authorization', token.access.token);
-  // return res.status(httpStatus.CREATED).send({ user, token });
 
   const user = authenticateUserWithSocialProvider('facebook', (profile = req.user), 'user', async (err, user) => {
     if (err) {
@@ -119,15 +103,6 @@ const logInWithGithub = catchAsync(async (req, res) => {
 
 //host
 const logInWithGoogleHost = catchAsync(async (req, res) => {
-  // console.log(`auth user`, req.user);
-  // const user = req.user;
-  // user.role = 'host';
-  // await user.save();
-  // const token = await tokenService.generateAuthTokens(req.user);
-  // console.log(`token`, token);
-  // res.setHeader('Authorization', token.access.token);
-  // return res.status(httpStatus.CREATED).send({ user, token });
-
   const user = authenticateUserWithSocialProvider('google', req.user, 'host', async (err, user) => {
     if (err) {
       return res.status(400).json({ message: err.message });
@@ -140,15 +115,6 @@ const logInWithGoogleHost = catchAsync(async (req, res) => {
   });
 });
 const logInWithFacebookHost = catchAsync(async (req, res) => {
-  // console.log(`auth user`, req.user);
-  // const user = req.user;
-  // user.role = 'host';
-  // await user.save();
-  // const token = await tokenService.generateAuthTokens(req.user);
-  // console.log(`token`, token);
-  // res.setHeader('Authorization', token.access.token);
-  // return res.status(httpStatus.CREATED).send({ user, token });
-
   const user = authenticateUserWithSocialProvider('facebook', (profile = req.user), 'host', async (err, user) => {
     if (err) {
       return res.status(400).json({ message: err.message });

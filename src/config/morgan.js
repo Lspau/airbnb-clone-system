@@ -9,7 +9,7 @@ const successResponseFormat = `${getIpFormat()}:method :url :status - :response-
 const errorResponseFormat = `${getIpFormat()}:method :url :status - :response-time ms - message: :message`;
 
 const successHandler = morgan(successResponseFormat, {
-  skip: (req, res) => res.statusCode >= 400,
+  skip: (req, res) => res.statusCode >= 400, 
   stream: { write: (message) => logger.info(message.trim()) },
 });
 
