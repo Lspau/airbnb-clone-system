@@ -32,6 +32,23 @@ const auth =
       .catch((err) => next(err));
   };
 
+// const gitHubAuth =
+//   (...requiredRights) =>
+//   async (req, res, next) => {
+//     return new Promise((resolve, reject) => {
+//       passport.authenticate('github-token', { session: false }, verifyCallback(req, resolve, reject, requiredRights))(
+//         req,
+//         res,
+//         next
+//       );
+//     })
+//       .then(() => next())
+//       .catch((err) => next(err));
+//   };
+
 module.exports = {
-  auth
+  auth,
+  // gitHubAuth,
+  // googleAuth,
+  // facebookAuth,
 };

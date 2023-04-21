@@ -5,7 +5,6 @@ const GitHubTokenStrategy = require('passport-github-token');
 const config = require('./config');
 const { tokenTypes } = require('./tokens');
 const { User } = require('../models');
-const passport = require('passport');
 const ApiError = require('../utils/ApiError');
 const httpStatus = require('http-status');
 
@@ -32,153 +31,155 @@ const jwtVerify = async (payload, done) => {
   }
 };
 
-const jwtStrategy = new JwtStrategy(jwtOptions, jwtVerify);
+async function authenticateUserWithSocialProvider(provider, profile, done) {
+  try {
+    // Check if user has a valid email address
+    if (!profile.emails || !profile.emails[0].value) {
+      return done(null, false, { message: 'Please provide an email address to continue.' });
+    }
 
-module.exports = {
-  jwtStrategy,
+    // Find user by social ID
+    const user = await User.findOne({ [`${provider}Id`]: profile.id });
+
+    if (user) {
+      // If user already exists, check user role
+      if (user.role === 'host') {
+        // If user is a host, return user with host role
+        return done(null, { ...user.toObject(), role: 'host' });
+      } else {
+        // If user is not a host, return user with user role
+        return done(null, user);
+      }
+    } else {
+      // If user does not exist, find user by email
+      const userWithEmail = await User.findOne({ email: profile.emails[0].value });
+
+      if (userWithEmail) {
+        // If user with email exists, update user with social ID: one email in many login methods
+        userWithEmail[`${provider}Id`] = profile.id;
+        userWithEmail[`${provider}Name`] = profile.displayName;
+        userWithEmail.logInWith = provider;
+
+        // Save updated user to database
+        await userWithEmail.save();
+
+        // Check user role
+        if (userWithEmail.role === 'host') {
+          // If user is a host, return user with host role
+          return done(null, { ...userWithEmail.toObject(), role: 'host' });
+        } else {
+          // If user is not a host, return user with user role
+          return done(null, userWithEmail);
+        }
+      } else {
+        // If user with email does not exist, create new user
+        const newUser = new User();
+        newUser[`${provider}Id`] = profile.id;
+        newUser[`${provider}Name`] = profile.displayName;
+        newUser.email = profile.emails[0].value;
+        newUser.logInWith = provider;
+
+        await newUser.save();
+
+        return done(null, newUser);
+      }
+    }
+  } catch (error) {
+    return done(error, false);
+  }
+}
+
+// async function authenticateUserWithSocialProvider(provider, profile, done) {
+//   try {
+//     // Check if user has a valid email address
+//     if (!profile.emails || !profile.emails[0].value) {
+//       return done(null, false, { message: 'Please provide an email address to continue.' });
+//     }
+
+//     // Find user by social ID
+//     const user = await User.findOne({ [`${provider}Id`]: profile.id });
+
+//     if (user) {
+//       // If user already exists, return user
+//       return done(null, user);
+//     } else {
+//       // If user does not exist, find user by email
+//       const userWithEmail = await User.findOne({ email: profile.emails[0].value });
+
+//       if (userWithEmail) {
+//         // If user with email exists, update user with social ID: one email in many login methods
+//         userWithEmail[`${provider}Id`] = profile.id;
+//         userWithEmail[`${provider}Name`] = profile.displayName;
+//         userWithEmail.logInWith = provider;
+
+//         // Save updated user to database
+//         await userWithEmail.save();
+
+//         return done(null, userWithEmail);
+//       } else {
+//         // If user with email does not exist, create new user
+//         const newUser = new User();
+//         newUser[`${provider}Id`] = profile.id;
+//         newUser[`${provider}Name`] = profile.displayName;
+//         newUser.email = profile.emails[0].value;
+//         newUser.logInWith = provider;
+//         newUser.role = ;
+
+//         await newUser.save();
+
+//         return done(null, newUser);
+//       }
+//     }
+//   } catch (error) {
+//     return done(error, false);
+//   }
+// }
+
+//passport github token
+const githubOptions = {
+  clientID: config.github.clientID,
+  clientSecret: config.github.clientSecret,
+  scope: 'user:email',
+};
+
+const githubVerify = async (accessToken, refreshToken, profile, done) => {
+  done(null, profile);
+};
+
+//passport facebook token
+const facebookOptions = {
+  clientID: config.facebook.clientID,
+  clientSecret: config.facebook.clientSecret,
+  scope: 'user:email',
+};
+
+const facebookVerify = async (accessToken, refreshToken, profile, done) => {
+  // console.log({ accessToken, refreshToken, profile, done });
+  // authenticateUserWithSocialProvider('facebook', profile, done);
+  done(null, profile);
 };
 
 //passport google token
+const googleOptions = {
+  clientID: config.google.clientID,
+  clientSecret: config.google.clientSecret,
+};
 
-passport.use(
-  new GooglePlusTokenStrategy(
-    {
-      clientID: config.google.clientID,
-      clientSecret: config.google.clientSecret,
-    },
-    async (accessToken, refreshToken, profile, done) => {
-      // console.log({ accessToken, refreshToken, profile });
-      try {
-        const oldUser = await User.findOne({ googleId: profile.id, authType: 'google' });
-        if (oldUser) return done(null, oldUser);
-        //create a new user
+const googleVerify = async (accessToken, refreshToken, profile, done) => {
+  // console.log({ accessToken, refreshToken, profile, done });
+  // authenticateUserWithSocialProvider('google', profile, done);
+  done(null, profile);
+};
 
-        const newUser = await new User({
-          provider: profile.provider,
-          googleId: profile.id,
-          email: profile.emails[0].value,
-          name: profile.displayName,
-          authType: 'google',
-        });
+//User
+const jwtStrategy = new JwtStrategy(jwtOptions, jwtVerify);
+const githubStrategy = new GitHubTokenStrategy(githubOptions, githubVerify);
+const facebookStrategy = new FacebookTokenStrategy(facebookOptions, facebookVerify);
+const googleStrategy = new GooglePlusTokenStrategy(googleOptions, googleVerify);
 
-        console.log({ newUser: newUser });
-
-        await newUser.save();
-
-        done(null, newUser);
-      } catch (error) {
-        done(error, false);
-      }
-    }
-  )
-);
-
-//passport facebook token
-passport.use(
-  new FacebookTokenStrategy(
-    {
-      clientID: config.facebook.clientID,
-      clientSecret: config.facebook.clientSecret,
-    },
-    async (accessToken, refreshToken, profile, done) => {
-      console.log({ accessToken, refreshToken, profile });
-      try {
-        const oldUser = await User.findOne({ facebookId: profile.id, authType: 'facebook' });
-        if (oldUser) return done(null, oldUser);
-        //create a new user
-
-        const newUser = await new User({
-          provider: profile.provider,
-          facebookId: profile.id,
-          email: profile.emails[0].value,
-          name: profile.displayName,
-          authType: 'facebook',
-        });
-
-        console.log({ newUser: newUser });
-
-        await newUser.save();
-
-        done(null, newUser);
-      } catch (error) {
-        done(error, false);
-      }
-    }
-  )
-);
-
-//passport github token
-passport.use(
-  new GitHubTokenStrategy(
-    {
-      clientID: config.github.clientID,
-      clientSecret: config.github.clientSecret,
-    },
-    async (accessToken, refreshToken, profile, done) => {
-      console.log({ accessToken, refreshToken, profile, done });
-      try {
-        // Check if user has a valid email address
-        if (!profile._json.email) {
-          // If email is null, prompt user to provide an email address
-          //throw new ApiError(httpStatus.UNAUTHORIZED, 'Please provide an email address to continue.');
-          return done(null, false, { message: 'Please provide an email address to continue.' });
-        }
-        User.findOne({ githubId: profile.id }, async (err, user) => {
-          if (err) return done(err);
-
-          if (user) {
-            return done(null, user);
-          } else {
-            User.findOne({ email: profile.emails[0].value }, async (err, user) => {
-              if (err) return done(err);
-
-              if (user) {
-                user.githubId = profile.id;
-                user.authType = profile.provider;
-                // Save updated user to database
-                user.save((err) => {
-                  if (err) {
-                    return done(err);
-                  }
-                  return done(null, user);
-                });
-                // return done(null, false, { message: 'This email is already associated with a different account.' });
-              } else {
-                const newUser = new User();
-                newUser.githubId = profile.id;
-                newUser.name = profile.displayName;
-                newUser.email = profile.emails[0].value;
-                newUser.save((err) => {
-                  if (err) {
-                    return done(err);
-                  }
-                  return done(null, newUser);
-                });
-              }
-            });
-          }
-        });
-
-        // const oldUser = await User.findOne({ githubId: profile.id, authType: 'github' });
-        // if (oldUser) return done(null, oldUser);
-        // //create a new user
-
-        // const newUser = await new User({
-        //   provider: profile.provider,
-        //   githubId: profile.id,
-        //   email: profile.emails[0].value,
-        //   name: profile.displayName,
-        //   authType: 'github',
-        // });
-
-        // console.log({ newUser: newUser });
-
-        // await newUser.save();
-
-        // done(null, newUser);
-      } catch (error) {
-        done(error, false);
-      }
-    }
-  )
-);
+module.exports = {
+  jwtStrategy,
+  githubStrategy,
+  facebookStrategy,
+  googleStrategy,
+};

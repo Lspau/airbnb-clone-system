@@ -1,6 +1,7 @@
 const httpStatus = require('http-status');
 const catchAsync = require('../utils/catchAsync');
 const { authService, userService, tokenService, emailService } = require('../services');
+const authenticateUserWithSocialProvider = require('../middlewares/loginWithSocial');
 
 //test
 const secret = catchAsync(async (req, res) => {
@@ -57,30 +58,119 @@ const verifyEmail = catchAsync(async (req, res) => {
   res.status(httpStatus.NO_CONTENT).send();
 });
 
+//user
+
 const logInWithGoogle = catchAsync(async (req, res) => {
-  console.log(`auth user`, req.user);
-  const user = req.user;
-  const token = await tokenService.generateAuthTokens(req.user);
-  console.log(`token`, token);
-  res.setHeader('Authorization', token.access.token);
-  return res.status(httpStatus.CREATED).send({ user, token });
+  // console.log(`auth user`, req.user);
+  // const user = req.user;
+  // user.role = 'user';
+  // await user.save();
+  // const token = await tokenService.generateAuthTokens(req.user);
+  // console.log(`token`, token);
+  // res.setHeader('Authorization', token.access.token);
+  // return res.status(httpStatus.CREATED).send({ user, token });
+
+  const user = authenticateUserWithSocialProvider('google', req.user, 'user', async (err, user) => {
+    if (err) {
+      return res.status(400).json({ message: err.message });
+    }
+
+    const token = await tokenService.generateAuthTokens(user);
+    console.log({ user, token });
+    res.setHeader('Authorization', token.access.token);
+    return res.status(httpStatus.CREATED).send({ user, token });
+  });
 });
 const logInWithFacebook = catchAsync(async (req, res) => {
-  // console.log(`auth user`, req.user);
-  const user = req.user;
-  const token = await tokenService.generateAuthTokens(req.user);
-  console.log(`token`, token);
-  res.setHeader('Authorization', token.access.token);
-  return res.status(httpStatus.CREATED).send({ user, token });
+  console.log(`auth user`, req.user);
+  // const user = req.user;
+  // user.role = 'user';
+  // await user.save();
+  // const token = await tokenService.generateAuthTokens(req.user);
+  // console.log(`token`, token);
+  // res.setHeader('Authorization', token.access.token);
+  // return res.status(httpStatus.CREATED).send({ user, token });
+
+  const user = authenticateUserWithSocialProvider('facebook', (profile = req.user), 'user', async (err, user) => {
+    if (err) {
+      return res.status(400).json({ message: err.message });
+    }
+
+    const token = await tokenService.generateAuthTokens(user);
+    console.log({ user, token });
+    res.setHeader('Authorization', token.access.token);
+    return res.status(httpStatus.CREATED).send({ user, token });
+  });
 });
 
 const logInWithGithub = catchAsync(async (req, res) => {
-  console.log(`auth user`, req.user);
-  const user = req.user;
-  const token = await tokenService.generateAuthTokens(req.user);
-  console.log(`token`, token);
-  res.setHeader('Authorization', token.access.token);
-  return res.status(httpStatus.CREATED).send({ user, token });
+  // const user = req.user;
+  const user = authenticateUserWithSocialProvider('github', req.user, 'user', async (err, user) => {
+    if (err) {
+      return res.status(400).json({ message: err.message });
+    }
+
+    const token = await tokenService.generateAuthTokens(user);
+    console.log({ user, token });
+    res.setHeader('Authorization', token.access.token);
+    return res.status(httpStatus.CREATED).send({ user, token });
+  });
+});
+
+//host
+const logInWithGoogleHost = catchAsync(async (req, res) => {
+  // console.log(`auth user`, req.user);
+  // const user = req.user;
+  // user.role = 'host';
+  // await user.save();
+  // const token = await tokenService.generateAuthTokens(req.user);
+  // console.log(`token`, token);
+  // res.setHeader('Authorization', token.access.token);
+  // return res.status(httpStatus.CREATED).send({ user, token });
+
+  const user = authenticateUserWithSocialProvider('google', req.user, 'host', async (err, user) => {
+    if (err) {
+      return res.status(400).json({ message: err.message });
+    }
+
+    const token = await tokenService.generateAuthTokens(user);
+    console.log({ user, token });
+    res.setHeader('Authorization', token.access.token);
+    return res.status(httpStatus.CREATED).send({ user, token });
+  });
+});
+const logInWithFacebookHost = catchAsync(async (req, res) => {
+  // console.log(`auth user`, req.user);
+  // const user = req.user;
+  // user.role = 'host';
+  // await user.save();
+  // const token = await tokenService.generateAuthTokens(req.user);
+  // console.log(`token`, token);
+  // res.setHeader('Authorization', token.access.token);
+  // return res.status(httpStatus.CREATED).send({ user, token });
+
+  const user = authenticateUserWithSocialProvider('facebook', (profile = req.user), 'host', async (err, user) => {
+    if (err) {
+      return res.status(400).json({ message: err.message });
+    }
+
+    const token = await tokenService.generateAuthTokens(user);
+    console.log({ user, token });
+    res.setHeader('Authorization', token.access.token);
+    return res.status(httpStatus.CREATED).send({ user, token });
+  });
+});
+const logInWithGithubHost = catchAsync(async (req, res) => {
+  const user = authenticateUserWithSocialProvider('github', req.user, 'host', async (err, user) => {
+    if (err) {
+      return res.status(400).json({ message: err.message });
+    }
+
+    const token = await tokenService.generateAuthTokens(user);
+    console.log({ user, token });
+    res.setHeader('Authorization', token.access.token);
+    return res.status(httpStatus.CREATED).send({ user, token });
+  });
 });
 
 module.exports = {
@@ -96,4 +186,7 @@ module.exports = {
   logInWithGoogle,
   logInWithFacebook,
   logInWithGithub,
+  logInWithGithubHost,
+  logInWithGoogleHost,
+  logInWithFacebookHost,
 };

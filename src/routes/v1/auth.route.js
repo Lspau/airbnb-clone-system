@@ -3,29 +3,50 @@ const validate = require('../../middlewares/validate');
 const passport = require('passport');
 const authValidation = require('../../validations/auth.validation');
 const authController = require('../../controllers/auth.controller');
-const { auth } = require('../../middlewares/auth');
+const { auth, gitHubAuth /* googleAuth, facebookAuth */ } = require('../../middlewares/auth');
 const { googleTokenStrategy } = require('../../config/passport');
 const router = express.Router();
 
-router.post('/register', validate(authValidation.register), authController.register);
-router.post('/login', validate(authValidation.login), authController.login);
-router.post('/logout', validate(authValidation.logout), authController.logout);
-router.post('/refresh-tokens', validate(authValidation.refreshTokens), authController.refreshTokens);
-router.post('/forgot-password', validate(authValidation.forgotPassword), authController.forgotPassword);
-router.post('/reset-password', validate(authValidation.resetPassword), authController.resetPassword);
-router.post('/send-verification-email', auth(), authController.sendVerificationEmail);
-router.post('/verify-email', validate(authValidation.verifyEmail), authController.verifyEmail);
-
-//test route
-
-router.post('/secret', passport.authenticate('jwt', { session: false }), authController.secret);
-router.post('/secret');
+//User routes
+router.post('/user/register', validate(authValidation.register), authController.register);
+router.post('/user/login', validate(authValidation.login), authController.login);
+router.post('/user/logout/user', validate(authValidation.logout), authController.logout);
+router.post('/user/refresh-tokens', validate(authValidation.refreshTokens), authController.refreshTokens);
+router.post('/user/forgot-password', validate(authValidation.forgotPassword), authController.forgotPassword);
+router.post('/user/reset-password', validate(authValidation.resetPassword), authController.resetPassword);
+router.post('/user/send-verification-email', auth(), authController.sendVerificationEmail);
+router.post('/user/verify-email', validate(authValidation.verifyEmail), authController.verifyEmail);
 
 // Route for third-party authentication
 
-router.post('/google', passport.authenticate('google-plus-token', { session: false }), authController.logInWithGoogle);
-router.post('/facebook', passport.authenticate('facebook-token', { session: false }), authController.logInWithFacebook);
-router.post('/github', passport.authenticate('github-token', { session: false }), authController.logInWithGithub);
+router.post('/user/google', passport.authenticate('google-plus-token', { session: false }), authController.logInWithGoogle);
+router.post('/user/facebook', passport.authenticate('facebook-token', { session: false }), authController.logInWithFacebook);
+router.post('/user/github', passport.authenticate('github-token', { session: false }), authController.logInWithGithub);
+
+//Host routes
+
+router.post('/host/register', validate(authValidation.register), authController.register);
+router.post('/host/login', validate(authValidation.login), authController.login);
+router.post('/host/logout', validate(authValidation.logout), authController.logout);
+router.post('/host/refresh-tokens', validate(authValidation.refreshTokens), authController.refreshTokens);
+router.post('/host/forgot-password', validate(authValidation.forgotPassword), authController.forgotPassword);
+router.post('/host/reset-password', validate(authValidation.resetPassword), authController.resetPassword);
+router.post('/host/send-verification-email', auth(), authController.sendVerificationEmail);
+router.post('/host/verify-email', validate(authValidation.verifyEmail), authController.verifyEmail);
+
+// Route for third-party authentication
+
+router.post(
+  '/host/google',
+  passport.authenticate('google-plus-token', { session: false }),
+  authController.logInWithGoogleHost
+);
+router.post(
+  '/host/facebook',
+  passport.authenticate('facebook-token', { session: false }),
+  authController.logInWithFacebookHost
+);
+router.post('/host/github', passport.authenticate('github-token', { session: false }), authController.logInWithGithubHost);
 
 module.exports = router;
 

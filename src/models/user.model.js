@@ -8,8 +8,10 @@ const userSchema = mongoose.Schema(
   {
     name: {
       type: String,
-      required: true,
       trim: true,
+    },
+    dayOfBirth: {
+      type: Date,
     },
     email: {
       type: String,
@@ -25,7 +27,7 @@ const userSchema = mongoose.Schema(
     },
     password: {
       type: String,
-      required: true,
+      // required: true,
       trim: true,
       minlength: 8,
       validate(value) {
@@ -45,7 +47,7 @@ const userSchema = mongoose.Schema(
       default: false,
     },
 
-    authType: {
+    logInWith: {
       type: String,
       enum: ['local', 'facebook', 'google', 'github'],
       default: 'local',
@@ -55,15 +57,40 @@ const userSchema = mongoose.Schema(
       type: String,
       default: null,
     },
+    googleName: {
+      type: String,
+      default: null,
+    },
     // fb
     facebookId: {
       type: String,
       default: null,
     },
+    facebookName: {
+      type: String,
+      default: null,
+    },
+    // linkedin
     //github
     githubId: {
       type: String,
       default: null,
+    },
+    githubName: {
+      type: String,
+      default: null,
+    },
+    about: {
+      type: String,
+      default: null,
+    },
+    modified: {
+      type: Date,
+    },
+    status: {
+      type: String,
+      enum: ['active', 'inactive'],
+      default: 'active',
     },
   },
   {
