@@ -1,6 +1,8 @@
 const express = require('express');
 const authRoute = require('./auth.route');
 const userRoute = require('./user.route');
+const reservationsRoute = require('./reservations.route');
+const hostRoute = require('./host.route');
 const docsRoute = require('./docs.route');
 const reviewRoute = require('./review.route');
 const config = require('../../config/config');
@@ -19,6 +21,14 @@ const defaultRoutes = [
   {
     path: '/reviews',
     route: reviewRoute,
+  },
+  {
+    path: '/reservations',
+    route: reservationsRoute,
+  },
+  {
+    path: '/host',
+    route: hostRoute,
   },
 ];
 

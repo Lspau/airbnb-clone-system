@@ -8,12 +8,11 @@ const passport = require('passport');
 const httpStatus = require('http-status');
 const config = require('./config/config');
 const morgan = require('./config/morgan');
-const { jwtStrategy } = require('./config/passport');
+const { jwtStrategy, githubStrategy, facebookStrategy, googleStrategy } = require('./config/passport');
 const { authLimiter } = require('./middlewares/rateLimiter');
 const routes = require('./routes/v1');
 const { errorConverter, errorHandler } = require('./middlewares/error');
 const ApiError = require('./utils/ApiError');
-
 const app = express();
 
 if (config.env !== 'test') {
@@ -44,6 +43,16 @@ app.options('*', cors());
 // jwt authentication
 app.use(passport.initialize());
 passport.use('jwt', jwtStrategy);
+passport.use('github-token', githubStrategy);
+passport.use('facebook-token', facebookStrategy);
+passport.use('google-plus-token', googleStrategy);
+
+//passport-facebook authentication
+// passport.use('google', googleTokenStrategy);
+// passport.use('facebook', facebookStrategy);
+// app.use(passport.session());
+
+//passport-google authentication
 
 // limit repeated failed requests to auth endpoints
 if (config.env === 'production') {
