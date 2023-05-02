@@ -6,7 +6,6 @@ const register = {
     email: Joi.string().required().email(),
     password: Joi.string().required().custom(password),
     name: Joi.string().required(),
-    role: Joi.string(),
   }),
 };
 
@@ -19,7 +18,7 @@ const login = {
 
 const logout = {
   body: Joi.object().keys({
-    refreshToken: Joi.string().required(),
+    // refreshToken: Joi.string().required(),
   }),
 };
 

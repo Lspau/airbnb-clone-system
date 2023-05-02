@@ -8,9 +8,9 @@ const { googleTokenStrategy } = require('../../config/passport');
 const router = express.Router();
 
 //User routes
-router.post('/user/register', validate(authValidation.register), authController.register);
+router.post('/user/register', validate(authValidation.register), authController.registerUser);
 router.post('/user/login', validate(authValidation.login), authController.login);
-router.post('/user/logout/user', validate(authValidation.logout), authController.logout);
+router.post('/user/logout', validate(authValidation.logout), authController.logout);
 router.post('/user/refresh-tokens', validate(authValidation.refreshTokens), authController.refreshTokens);
 router.post('/user/forgot-password', validate(authValidation.forgotPassword), authController.forgotPassword);
 router.post('/user/reset-password', validate(authValidation.resetPassword), authController.resetPassword);
@@ -25,7 +25,7 @@ router.post('/user/github', passport.authenticate('github-token', { session: fal
 
 //Host routes
 
-router.post('/host/register', validate(authValidation.register), authController.register);
+router.post('/host/register', validate(authValidation.register), authController.registerHost);
 router.post('/host/login', validate(authValidation.login), authController.login);
 router.post('/host/logout', validate(authValidation.logout), authController.logout);
 router.post('/host/refresh-tokens', validate(authValidation.refreshTokens), authController.refreshTokens);

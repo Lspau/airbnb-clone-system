@@ -3,6 +3,7 @@ const validator = require('validator');
 const bcrypt = require('bcryptjs');
 const { toJSON, paginate } = require('./plugins');
 const { roles } = require('../config/roles');
+const slugify = require('slugify');
 
 const userSchema = mongoose.Schema(
   {
@@ -10,6 +11,7 @@ const userSchema = mongoose.Schema(
       type: String,
       trim: true,
     },
+    slug: String,
     dayOfBirth: {
       type: Date,
     },
@@ -102,6 +104,18 @@ const userSchema = mongoose.Schema(
 userSchema.plugin(toJSON);
 userSchema.plugin(paginate);
 
+// Pre-save middleware to generate slug
+userSchema.pre('save', function (next) {
+  const user = this;
+  if (!user.isModified('name')) return next();
+
+  const slug = slugify(user.name, {
+    lower: true,
+    strict: true,
+  });
+  user.slug = slug;
+  next();
+});
 /**
  * Check if email is taken
  * @param {string} email - The user's email
@@ -125,7 +139,7 @@ userSchema.methods.isPasswordMatch = async function (password) {
 
 userSchema.pre('save', async function (next) {
   try {
-    if (this.authType !== 'local') next();
+    if (this.logInWith !== 'local') next();
     const user = this;
     if (user.isModified('password')) {
       user.password = await bcrypt.hash(user.password, 8);

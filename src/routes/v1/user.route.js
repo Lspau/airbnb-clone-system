@@ -6,17 +6,31 @@ const userController = require('../../controllers/user.controller');
 
 const router = express.Router();
 
+//admin routes
 router
-  .route('/')
+  .route('/admin')
   .post(auth('manageUsers'), validate(userValidation.createUser), userController.createUser)
   .get(auth('getUsers'), validate(userValidation.getUsers), userController.getUsers);
 
 router
-  .route('/:userId')
+  .route('/admin/:userId')
   .get(auth('getUsers'), validate(userValidation.getUser), userController.getUser)
   .patch(auth('manageUsers'), validate(userValidation.updateUser), userController.updateUser)
   .delete(auth('manageUsers'), validate(userValidation.deleteUser), userController.deleteUser);
 
+//user routes
+
+router
+  .route('/user/:userId')
+  .get(auth(), validate(userValidation.getUser), userController.getUser)
+  .patch(auth(), validate(userValidation.updateUser), userController.updateUser);
+
+//user routes
+
+router
+  .route('/host/:userId')
+  .get(auth(), validate(userValidation.getUser), userController.getUser)
+  .patch(auth(), validate(userValidation.updateUser), userController.updateUser);
 module.exports = router;
 
 /**
