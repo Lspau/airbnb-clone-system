@@ -6,6 +6,7 @@ const hostRoute = require('./host.route');
 const paymentRoute = require('./payment.route');
 const listingRoute = require('./listing.route');
 const docsRoute = require('./docs.route');
+const reviewRoute = require('./review.route');
 const config = require('../../config/config');
 
 const router = express.Router();
@@ -18,6 +19,10 @@ const defaultRoutes = [
   {
     path: '/users',
     route: userRoute,
+  },
+  {
+    path: '/reviews',
+    route: reviewRoute,
   },
   {
     path: '/reservations',
