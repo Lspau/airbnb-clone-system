@@ -1,0 +1,13 @@
+esAction = [
+    {
+      index: {
+        _index: elastic.index,
+        _type:  elastic.type
+      }
+    },
+    {
+      author: "quote author",
+      quote:  "quote"
+    },
+    // ...
+  ]

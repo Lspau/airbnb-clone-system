@@ -35,6 +35,9 @@ const envVarsSchema = Joi.object()
     REFRESH_TOKEN: Joi.string().description('nothing'),
     GMAIL_USERNAME: Joi.string().description('username for gmail server'),
     GMAIL_FROM: Joi.string().description('the from field in the gmails sent by the app'),
+    PAYPAL_CLIENT_ID: Joi.string().description('the paypal client'),
+    PAYPAL_CLIENT_SECRET: Joi.string().description('the paypal client secret'),
+    PAYPAL_MODE: Joi.string().description('the paypal mode'),
   })
   .unknown();
 
@@ -96,5 +99,10 @@ module.exports = {
   github: {
     clientID: envVars.GITHUB_CLIENT_ID,
     clientSecret: envVars.GITHUB_CLIENT_SECRET,
+  },
+  paypal: {
+    clientID: envVars.PAYPAL_CLIENT_ID,
+    clientSecret: envVars.PAYPAL_CLIENT_SECRET,
+    mode: envVars.PAYPAL_MODE,
   },
 };

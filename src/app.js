@@ -13,6 +13,7 @@ const { authLimiter } = require('./middlewares/rateLimiter');
 const routes = require('./routes/v1');
 const { errorConverter, errorHandler } = require('./middlewares/error');
 const ApiError = require('./utils/ApiError');
+const cookieParser = require('cookie-parser');
 const app = express();
 
 if (config.env !== 'test') {
@@ -40,6 +41,9 @@ app.use(compression());
 app.use(cors());
 app.options('*', cors());
 
+//cookies
+app.use(cookieParser());
+
 // jwt authentication
 app.use(passport.initialize());
 passport.use('jwt', jwtStrategy);
@@ -55,10 +59,13 @@ passport.use('google-plus-token', googleStrategy);
 //passport-google authentication
 
 // limit repeated failed requests to auth endpoints
+
 if (config.env === 'production') {
   app.use('/v1/auth', authLimiter);
 }
-
+app.use('/', (req, res) => {
+  res.send('Hello World');
+});
 // v1 api routes
 app.use('/v1', routes);
 

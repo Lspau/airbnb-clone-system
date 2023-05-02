@@ -11,8 +11,14 @@ const secret = catchAsync(async (req, res) => {
   // res.status(httpStatus.CREATED).send({ user, tokens });
 });
 
-const register = catchAsync(async (req, res) => {
+const registerUser = catchAsync(async (req, res) => {
   const user = await userService.createUser(req.body);
+  const tokens = await tokenService.generateAuthTokens(user);
+  res.status(httpStatus.CREATED).send({ user, tokens });
+});
+
+const registerHost = catchAsync(async (req, res) => {
+  const user = await userService.createHost(req.body);
   const tokens = await tokenService.generateAuthTokens(user);
   res.status(httpStatus.CREATED).send({ user, tokens });
 });
@@ -21,12 +27,24 @@ const login = catchAsync(async (req, res) => {
   const { email, password } = req.body;
   const user = await authService.loginUserWithEmailAndPassword(email, password);
   const tokens = await tokenService.generateAuthTokens(user);
-  res.setHeader('Authorization', tokens.access.token);
+  res.cookie('refreshToken', tokens.refresh.token, {
+    httpOnly: true,
+    maxAge: 72 * 60 * 60 * 1000,
+  });
+  // res.setHeader('Authorization', tokens.access.token);
   res.send({ user, tokens });
 });
 
 const logout = catchAsync(async (req, res) => {
-  await authService.logout(req.body.refreshToken);
+  // await authService.logout(req.body.refreshToken);
+  // res.status(httpStatus.NO_CONTENT).send();
+  const refreshToken = req.cookies.refreshToken;
+  console.log(refreshToken);
+  await authService.logout(refreshToken);
+  res.clearCookie('refreshToken', {
+    httpOnly: true,
+    secure: true,
+  });
   res.status(httpStatus.NO_CONTENT).send();
 });
 
@@ -141,7 +159,8 @@ const logInWithGithubHost = catchAsync(async (req, res) => {
 
 module.exports = {
   secret,
-  register,
+  registerUser,
+  registerHost,
   login,
   logout,
   refreshTokens,

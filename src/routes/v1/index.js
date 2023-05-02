@@ -3,6 +3,8 @@ const authRoute = require('./auth.route');
 const userRoute = require('./user.route');
 const reservationsRoute = require('./reservations.route');
 const hostRoute = require('./host.route');
+const paymentRoute = require('./payment.route');
+const listingRoute = require('./listing.route');
 const docsRoute = require('./docs.route');
 const config = require('../../config/config');
 
@@ -24,6 +26,14 @@ const defaultRoutes = [
   {
     path: '/host',
     route: hostRoute,
+  },
+  {
+    path: '/payments',
+    route: paymentRoute,
+  },
+  {
+    path: '/listings',
+    route: listingRoute,
   },
 ];
 
