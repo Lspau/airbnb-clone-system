@@ -23,6 +23,18 @@ const envVarsSchema = Joi.object()
     SMTP_USERNAME: Joi.string().description('username for email server'),
     SMTP_PASSWORD: Joi.string().description('password for email server'),
     EMAIL_FROM: Joi.string().description('the from field in the emails sent by the app'),
+    FACEBOOK_CLIENT_ID: Joi.string().description('the facebook client id'),
+    FACEBOOK_CLIENT_SECRET: Joi.string().description('the facebook client secret'),
+    GOOGLE_CLIENT_ID: Joi.string().description('the google client id'),
+    GOOGLE_CLIENT_SECRET: Joi.string().description('the google client secret'),
+    GOOGLE_MAIL_CLIENT_ID: Joi.string().description('the google client id'),
+    GOOGLE_MAIL_CLIENT_SECRET: Joi.string().description('the google client secret'),
+    GITHUB_CLIENT_ID: Joi.string().description('the github client id'),
+    GITHUB_CLIENT_SECRET: Joi.string().description('the github client secret'),
+    REDIRECT_URI: Joi.string().description('the redirect URI'),
+    REFRESH_TOKEN: Joi.string().description('nothing'),
+    GMAIL_USERNAME: Joi.string().description('username for gmail server'),
+    GMAIL_FROM: Joi.string().description('the from field in the gmails sent by the app'),
   })
   .unknown();
 
@@ -60,5 +72,29 @@ module.exports = {
       },
     },
     from: envVars.EMAIL_FROM,
+  },
+  gmail: {
+    service: 'gmail',
+    auth: {
+      type: 'OAuth2',
+      user: envVars.GMAIL_USERNAME,
+      clientId: envVars.GOOGLE_MAIL_CLIENT_ID,
+      clientSecret: envVars.GOOGLE_MAIL_CLIENT_SECRET,
+      redirectUri: envVars.REDIRECT_URI,
+      refreshToken: envVars.REFRESH_TOKEN,
+    },
+    from: envVars.GMAIL_FROM,
+  },
+  facebook: {
+    clientID: envVars.FACEBOOK_CLIENT_ID,
+    clientSecret: envVars.FACEBOOK_CLIENT_SECRET,
+  },
+  google: {
+    clientID: envVars.GOOGLE_CLIENT_ID,
+    clientSecret: envVars.GOOGLE_CLIENT_SECRET,
+  },
+  github: {
+    clientID: envVars.GITHUB_CLIENT_ID,
+    clientSecret: envVars.GITHUB_CLIENT_SECRET,
   },
 };

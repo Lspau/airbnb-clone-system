@@ -2,6 +2,51 @@ const nodemailer = require('nodemailer');
 const config = require('../config/config');
 const logger = require('../config/logger');
 
+// USING OAUTH2
+const { google } = require('googleapis');
+const oAuth2Client = new google.auth.OAuth2(
+  config.gmail.auth.clientId,
+  config.gmail.auth.clientSecret,
+  config.gmail.auth.redirectUri
+);
+oAuth2Client.setCredentials({ refresh_token: config.gmail.auth.refreshToken });
+
+const sendGmail = async (to, subject, text) => {
+  try {
+    const accessToken = await oAuth2Client.getAccessToken();
+    const transport = nodemailer.createTransport({
+      service: config.gmail.service,
+      auth: {
+        type: config.gmail.auth.type,
+        user: config.gmail.auth.user,
+        clientId: config.gmail.auth.clientId,
+        clientSecret: config.gmail.auth.clientSecret,
+        refreshToken: config.gmail.auth.refreshToken,
+        accessToken: accessToken,
+      },
+    });
+
+    //send mail with defined transport object and mailOptions
+    const mailOptions = {
+      from: '"Fred Foo 👻" <workdvt811212@gmail.com>',
+      to: to,
+      subject: subject,
+      text: text,
+    };
+
+    const result = await transport.sendMail(mailOptions);
+
+    return result;
+  } catch (error) {
+    logger.error(error);
+  }
+};
+
+/* sendGmail('dinhtrang811212@gmail.com', 'check mail', 'check mail')
+  .then((result) => console.log('result: ', result))
+  .catch((error) => console('error', error)); */
+
+//USING SMTP
 const transport = nodemailer.createTransport(config.email.smtp);
 /* istanbul ignore next */
 if (config.env !== 'test') {
@@ -36,7 +81,7 @@ const sendResetPasswordEmail = async (to, token) => {
   const text = `Dear user,
 To reset your password, click on this link: ${resetPasswordUrl}
 If you did not request any password resets, then ignore this email.`;
-  await sendEmail(to, subject, text);
+  await sendGmail(to, subject, text);
 };
 
 /**
@@ -52,7 +97,7 @@ const sendVerificationEmail = async (to, token) => {
   const text = `Dear user,
 To verify your email, click on this link: ${verificationEmailUrl}
 If you did not create an account, then ignore this email.`;
-  await sendEmail(to, subject, text);
+  await sendGmail(to, subject, text);
 };
 
 module.exports = {
@@ -60,4 +105,5 @@ module.exports = {
   sendEmail,
   sendResetPasswordEmail,
   sendVerificationEmail,
+  sendGmail,
 };
