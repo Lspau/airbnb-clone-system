@@ -3,50 +3,39 @@ const validate = require('../../middlewares/validate');
 const passport = require('passport');
 const authValidation = require('../../validations/auth.validation');
 const authController = require('../../controllers/auth.controller');
-const { auth, gitHubAuth /* googleAuth, facebookAuth */ } = require('../../middlewares/auth');
-const { googleTokenStrategy } = require('../../config/passport');
+const { auth } = require('../../middlewares/auth');
 const router = express.Router();
 
 //User routes
-router.post('/user/register', validate(authValidation.register), authController.registerUser);
-router.post('/user/login', validate(authValidation.login), authController.login);
-router.post('/user/logout', validate(authValidation.logout), authController.logout);
-router.post('/user/refresh-tokens', validate(authValidation.refreshTokens), authController.refreshTokens);
-router.post('/user/forgot-password', validate(authValidation.forgotPassword), authController.forgotPassword);
-router.post('/user/reset-password', validate(authValidation.resetPassword), authController.resetPassword);
-router.post('/user/send-verification-email', auth(), authController.sendVerificationEmail);
-router.post('/user/verify-email', validate(authValidation.verifyEmail), authController.verifyEmail);
-
-// Route for third-party authentication
-
-router.post('/user/google', passport.authenticate('google-plus-token', { session: false }), authController.logInWithGoogle);
-router.post('/user/facebook', passport.authenticate('facebook-token', { session: false }), authController.logInWithFacebook);
-router.post('/user/github', passport.authenticate('github-token', { session: false }), authController.logInWithGithub);
-
-//Host routes
-
-router.post('/host/register', validate(authValidation.register), authController.registerHost);
-router.post('/host/login', validate(authValidation.login), authController.login);
-router.post('/host/logout', validate(authValidation.logout), authController.logout);
-router.post('/host/refresh-tokens', validate(authValidation.refreshTokens), authController.refreshTokens);
-router.post('/host/forgot-password', validate(authValidation.forgotPassword), authController.forgotPassword);
-router.post('/host/reset-password', validate(authValidation.resetPassword), authController.resetPassword);
-router.post('/host/send-verification-email', auth(), authController.sendVerificationEmail);
-router.post('/host/verify-email', validate(authValidation.verifyEmail), authController.verifyEmail);
+router.post('/register', validate(authValidation.register), authController.register);
+router.post('/login', validate(authValidation.login), authController.login);
+router.post('/logout', validate(authValidation.logout), authController.logout);
+router.post('/refresh-tokens', validate(authValidation.refreshTokens), authController.refreshTokens);
+router.post('/forgot-password', validate(authValidation.forgotPassword), authController.forgotPassword);
+router.post('/reset-password', validate(authValidation.resetPassword), authController.resetPassword);
+router.post('/send-verification-email', auth(), authController.sendVerificationEmail);
+router.post('/verify-email', validate(authValidation.verifyEmail), authController.verifyEmail);
 
 // Route for third-party authentication
 
 router.post(
-  '/host/google',
+  '/google',
   passport.authenticate('google-plus-token', { session: false }),
-  authController.logInWithGoogleHost
+  validate(authValidation.logInWithGoogle),
+  authController.logInWithGoogle
 );
 router.post(
-  '/host/facebook',
+  '/facebook',
   passport.authenticate('facebook-token', { session: false }),
-  authController.logInWithFacebookHost
+  validate(authValidation.logInWithFacebook),
+  authController.logInWithFacebook
 );
-router.post('/host/github', passport.authenticate('github-token', { session: false }), authController.logInWithGithubHost);
+router.post(
+  '/github',
+  passport.authenticate('github-token', { session: false }),
+  validate(authValidation.logInWithGithub),
+  authController.logInWithGithub
+);
 
 module.exports = router;
 
@@ -289,14 +278,6 @@ module.exports = router;
  *     tags: [Auth]
  *     security:
  *       - bearerAuth: []
- *
- *  or:
- *       Headers:
- *
- *         name: Authorization
- *         required: true
- *        example: 'Bearer token
- *
  *     responses:
  *       "204":
  *         description: No content

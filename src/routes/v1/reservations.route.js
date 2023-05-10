@@ -1,18 +1,22 @@
 const express = require('express');
-// const auth = require('../../middlewares/auth');
-// const validate = require('../../middlewares/validate');
-// const userValidation = require('../../validations/user.validation');
+const { auth } = require('../../middlewares/auth');
+const validate = require('../../middlewares/validate');
+const reservationValidation = require('../../validations/reservation.validation');
 const reservationsController = require('../../controllers/reservations.controller');
 
 const router = express.Router();
 
-router.route('/').post(reservationsController.createReservation).get(reservationsController.getReservations);
+router
+  .route('/')
+  .post(auth(), validate(reservationValidation.createReservation), reservationsController.createReservation)
+  .get(auth('getEvents'), reservationsController.getReservationsByHost);
 
 router
   .route('/:reservationId')
-  .get(reservationsController.getReservation)
-  .patch(reservationsController.updateReservation)
-  .delete(reservationsController.deleteReservation);
+  .get(auth(), validate(reservationValidation.getReservation), reservationsController.getReservation)
+  .patch(auth(), validate(reservationValidation.cancelReservation), reservationsController.cancelReservation)
+  .post(auth('manageEvents'), validate(reservationValidation.confirmReservation), reservationsController.confirmReservation)
+  .delete(auth(), reservationsController.deleteReservation);
 
 module.exports = router;
 

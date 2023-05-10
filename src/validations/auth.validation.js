@@ -6,6 +6,7 @@ const register = {
     email: Joi.string().required().email(),
     password: Joi.string().required().custom(password),
     name: Joi.string().required(),
+    role: Joi.string(),
   }),
 };
 
@@ -49,6 +50,25 @@ const verifyEmail = {
   }),
 };
 
+const logInWithGoogle = {
+  body: Joi.object().keys({
+    access_token: Joi.string().required(),
+    role: Joi.string().required(),
+  }),
+};
+const logInWithFacebook = {
+  body: Joi.object().keys({
+    access_token: Joi.string().required(),
+    role: Joi.string().required(),
+  }),
+};
+const logInWithGithub = {
+  body: Joi.object().keys({
+    access_token: Joi.string().required(),
+    role: Joi.string().required(),
+  }),
+};
+
 module.exports = {
   register,
   login,
@@ -57,4 +77,7 @@ module.exports = {
   forgotPassword,
   resetPassword,
   verifyEmail,
+  logInWithGoogle,
+  logInWithFacebook,
+  logInWithGithub,
 };

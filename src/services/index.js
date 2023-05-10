@@ -6,3 +6,4 @@ module.exports.reviewService = require('./review.service');
 module.exports.reservationService = require('./reservations.service');
 module.exports.paymentService = require('./payment.service');
 module.exports.listingService = require('./listing.service');
+module.exports.elasticsearchService = require('./elasticsearch.service');

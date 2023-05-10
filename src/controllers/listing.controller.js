@@ -2,11 +2,14 @@ const httpStatus = require('http-status');
 const pick = require('../utils/pick');
 const ApiError = require('../utils/ApiError');
 const catchAsync = require('../utils/catchAsync');
-const { listingService } = require('../services');
+const { listingService, elasticsearchService } = require('../services');
 
 const createListing = catchAsync(async (req, res) => {
+
   const { _id } = req.user;
-  //   console.log(_id);
+ 
+
+
   const listing = await listingService.createListing(req.body, _id);
   res.status(httpStatus.CREATED).send(listing);
 });
